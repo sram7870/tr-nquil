@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Support - Connections</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primaryGreen: {
+                            DEFAULT: '#256d3b',
+                            light: '#4a9867',
+                            dark: '#1d502a',
+                        },
+                        offwhite: '#f8faf6',
+                        calmGray: {
+                            light: '#e6e8e3',
+                            DEFAULT: '#9ca3af',
+                            dark: '#6b7280',
+                        }
+                    },
+                    backgroundImage: {
+                        leafy: "url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')"
+
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-offwhite text-primaryGreen">
+
+<nav class="bg-[#f9f9f6] backdrop-blur-md shadow-sm border-b border-gray-200 py-4 px-8 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+        <i data-feather="home" class="w-5 h-5 text-[#2f5930]"></i>
+        <span class="text-lg font-bold text-[#2f5930] tracking-wide">Dashboard</span>
+    </div>
+    <div class="flex space-x-6 text-sm font-medium">
+        <a href="/journal" class="text-gray-600 hover:text-[#2f5930]">Journal</a>
+        <a href="/quiz" class="text-gray-600 hover:text-[#2f5930]">Quiz</a>
+        <a href="/stats" class="text-gray-600 hover:text-[#2f5930]">Statistics</a>
+        <a href="/info" class="text-gray-600 hover:text-[#2f5930]">Info</a>
+        <a href="connections.html">Connections</a>
+    </div>
+</nav>
+
+<main class="max-w-6xl mx-auto p-6">
+
+    <header class="mb-12 text-center">
+        <h1 class="text-4xl font-bold mb-2">Connect with Supportive People</h1>
+        <p class="text-lg text-primaryGreen-dark">Reach out to licensed professionals or peers who understand your journey.</p>
+    </header>
+
+    <!-- Background Section -->
+    <section class="rounded-lg bg-leafy bg-cover bg-center p-10 mb-12 shadow-lg text-white text-center">
+        <h2 class="text-3xl font-semibold mb-2" >You're Not Alone</h2>
+        <p class="max-w-xl mx-auto text-lg">Talking to someone can make a real difference. Browse below to find a connection that resonates with you.</p>
+    </section>
+
+    <!-- Cards Grid -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        {% for person in people %}
+        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition">
+            <img src="{{ person.avatar }}" alt="{{ person.name }}" class="w-24 h-24 rounded-full object-cover mb-4 border-4 border-primaryGreen">
+            <h3 class="text-xl font-semibold text-primaryGreen mb-1">{{ person.name }}</h3>
+            <p class="text-sm text-calmGray-dark mb-3 italic">{{ person.role }}</p>
+            <p class="text-sm text-calmGray-dark mb-4">{{ person.bio }}</p>
+            <div class="flex space-x-4 mt-auto">
+                {% if person.social.linkedin %}
+                <a href="{{ person.social.linkedin }}" target="_blank" title="LinkedIn">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" class="w-5 h-5" alt="LinkedIn">
+                </a>
+                {% endif %}
+                {% if person.social.twitter %}
+                <a href="{{ person.social.twitter }}" target="_blank" title="Twitter">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" class="w-5 h-5" alt="Twitter">
+                </a>
+                {% endif %}
+                {% if person.social.instagram %}
+                <a href="{{ person.social.instagram }}" target="_blank" title="Instagram">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" class="w-5 h-5" alt="Instagram">
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+    </section>
+
+    <footer class="mt-16 text-center text-sm text-primaryGreen-dark">
+        This feature is for support and connection. For emergencies, please seek immediate professional help.
+    </footer>
+</main>
+
+</body>
+</html>

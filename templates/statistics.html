@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mental Health Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="/static/statistics.js" defer></script>
+
+    <style>
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        animation: fadeIn 0.3s ease;
+      }
+      .modal-content {
+        background: white;
+        border-radius: 1rem;
+        padding: 3rem;
+        width: 95vw;
+        max-width: 1200px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      /* Ensure modal canvas is responsive */
+      #modalChart {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 500px;
+      }
+    </style>
+  </head>
+  <body class="bg-[#f9f9f6] text-gray-800">
+    <nav class="bg-[#f9f9f6] backdrop-blur-md shadow-sm border-b border-gray-200 py-4 px-8 flex items-center justify-between sticky top-0 z-50">
+      <div class="flex items-center space-x-3">
+        <i data-feather="home" class="w-5 h-5 text-[#2f5930]"></i>
+        <span class="text-lg font-bold text-[#2f5930] tracking-wide">Dashboard</span>
+      </div>
+      <div class="flex space-x-6 text-sm font-medium">
+        <a href="/journal" class="text-gray-600 hover:text-[#2f5930]">Journal</a>
+        <a href="/quiz" class="text-gray-600 hover:text-[#2f5930]">Quiz</a>
+        <a href="/stats" class="text-gray-600 hover:text-[#2f5930]">Statistics</a>
+        <a href="/info" class="text-gray-600 hover:text-[#2f5930]">Info</a>
+        <a href="connections.html">Connections</a>
+      </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+      <header class="mb-10 text-center">
+        <h1 class="text-4xl font-bold text-emerald-800 mb-2">Mental Health Insights</h1>
+        <p class="text-lg text-gray-600">AI-driven analytics on national and personal mental health trends</p>
+      </header>
+
+      <section class="mb-6">
+        <label for="filter" class="block mb-2 text-sm font-semibold text-gray-700">Filter by Time Range:</label>
+        <select id="filter" class="w-full md:w-1/3 p-2 rounded-lg border border-gray-300 shadow">
+          <option>Last 7 Days</option>
+          <option>Last 30 Days</option>
+          <option>Last 6 Months</option>
+          <option>All Time</option>
+        </select>
+      </section>
+
+      <section class="bg-white border-l-4 border-emerald-600 p-6 rounded-xl shadow mb-10">
+        <h2 class="text-2xl font-semibold text-emerald-700 mb-2">AI Summary</h2>
+        <p id="aiSummary" class="text-gray-700 italic">Analyzing patterns across user-reported data and national statistics...</p>
+      </section>
+
+      <div class="mb-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div onclick="openModal('/stats/user_mood_trend', 'Mood Over Time')" class="p-6 rounded-2xl shadow bg-white hover:scale-105 transition cursor-pointer">
+            <h3 class="text-xl font-semibold text-emerald-700 mb-2">Mood Over Time</h3>
+            <p class="text-sm text-gray-600 mb-2">Track emotional patterns daily or weekly and identify trends in mood shifts.</p>
+            <img id="moodTrendChart" alt="Mood Over Time Chart" class="rounded-lg shadow w-full" />
+          </div>
+          <div onclick="openModal('/stats/mood_forecast', 'Forecasted Mood')" class="p-6 rounded-2xl shadow bg-white hover:scale-105 transition cursor-pointer">
+            <h3 class="text-xl font-semibold text-emerald-700 mb-2">Forecasted Mood</h3>
+            <p class="text-sm text-gray-600 mb-2">Predictive model that estimates upcoming emotional states based on past behavior.</p>
+            <img id="moodForecastChart" alt="Forecasted Mood Chart" class="rounded-lg shadow w-full" />
+          </div>
+          <div onclick="openModal('/stats/cluster_plot', 'Cluster Analysis')" class="p-6 rounded-2xl shadow bg-white hover:scale-105 transition cursor-pointer">
+            <h3 class="text-xl font-semibold text-emerald-700 mb-2">Cluster Analysis</h3>
+            <p class="text-sm text-gray-600 mb-2">Group similar mental health profiles to uncover patterns across populations.</p>
+            <img id="clusterChart" alt="Cluster Analysis Chart" class="rounded-lg shadow w-full" />
+          </div>
+          <div onclick="openModal('/stats/national_trend', 'National Mood Trend')" class="p-6 rounded-2xl shadow bg-white hover:scale-105 transition cursor-pointer">
+            <h3 class="text-xl font-semibold text-emerald-700 mb-2">National Mood Trend</h3>
+            <p class="text-sm text-gray-600 mb-2">Aggregated sentiment data showing overall national emotional wellbeing over time.</p>
+            <img id="nationalTrendChart" alt="National Mood Trend Chart" class="rounded-lg shadow w-full" />
+          </div>
+          <div onclick="openModal('/stats/haiti_map', 'Mood by Region')" class="p-6 rounded-2xl shadow bg-white hover:scale-105 transition cursor-pointer">
+            <h3 class="text-xl font-semibold text-emerald-700 mb-2">Mood by Region</h3>
+            <p class="text-sm text-gray-600 mb-2">Interactive geographic distribution of reported moods across the world.</p>
+            <img id="haitiMapChart" alt="Mood by Region Chart" class="rounded-lg shadow w-full" />
+          </div>
+          <div onclick="openModal('/stats/top_symptoms', 'Top Symptoms')" class="p-6 rounded-2xl shadow bg-white hover:scale-105 transition cursor-pointer">
+            <h3 class="text-xl font-semibold text-emerald-700 mb-2">Top Symptoms</h3>
+            <p class="text-sm text-gray-600 mb-2">The most commonly reported symptoms across the nation, ranked by frequency.</p>
+            <img id="symptomBarChart" alt="Top Symptoms Chart" class="rounded-lg shadow w-full" />
+          </div>
+          <div onclick="openModal('/stats/intervention_efficacy', 'Intervention Efficacy')" class="p-6 rounded-2xl shadow bg-white hover:scale-105 transition cursor-pointer">
+            <h3 class="text-xl font-semibold text-emerald-700 mb-2">Intervention Efficacy</h3>
+            <p class="text-sm text-gray-600 mb-2">How effective different interventions (e.g., therapy, medication) are in improving symptoms.</p>
+            <img id="interventionChart" alt="Intervention Efficacy Chart" class="rounded-lg shadow w-full" />
+          </div>
+          <div onclick="openModal('/stats/age_demographics', 'Demographics by Age')" class="p-6 rounded-2xl shadow bg-white hover:scale-105 transition cursor-pointer">
+            <h3 class="text-xl font-semibold text-emerald-700 mb-2">Demographics by Age</h3>
+            <p class="text-sm text-gray-600 mb-2">Distribution of mental health metrics across different age brackets.</p>
+            <img id="ageDemographicsChart" alt="Demographics by Age Chart" class="rounded-lg shadow w-full" />
+          </div>
+        </div>
+      </div>
+
+      <section class="bg-white p-8 rounded-xl shadow border border-emerald-200 mt-10">
+        <h2 class="text-2xl font-bold text-emerald-700 mb-4">Statistic Cards Overview</h2>
+        <p class="text-gray-700 mb-4">
+          Each card above provides a specific insight into individual and societal mental health indicators. They are derived using a blend of user-submitted responses, anonymized personal journals, behavioral trends, and aggregated national health data. These metrics aim to reflect the emotional and psychological climate of users and communities across time, geography, and demographics.
+        </p>
+
+        <p class="text-gray-700 mb-4">
+          Use the filtering tool to explore how these metrics evolve over days, weeks, or months. You can narrow results based on region, age group, or emotional category to uncover trends that matter most to you. Click any chart to expand it for a closer look and access detailed AI-generated interpretations, which help explain patterns, correlations, and outliers in plain language. These insights are crafted to aid reflection, foster understanding, and guide informed decisions.
+        </p>
+
+        <p class="text-gray-700">
+          Our goal is to transform raw data into actionable, humane understanding of mental health. By surfacing meaningful patterns and presenting them in a clear, respectful, and compassionate format, we hope to support individuals in their self-awareness journeys, provide clinicians with contextual guidance, and assist policymakers in identifying public mental health priorities. Every interaction contributes to a richer, more nuanced portrait of collective emotional wellbeing—and we’re committed to continuously improving how we reflect, respond to, and empower that understanding.
+        </p>
+      </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="chartModal" class="fixed inset-0 hidden items-center justify-center z-50 bg-black/60 backdrop-blur-sm">
+      <div id="modalContent" class="relative bg-white rounded-2xl max-w-3xl w-full mx-4 md:mx-8 shadow-xl p-6 md:p-10 overflow-y-auto max-h-[90vh] modal-enter">
+        <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-emerald-700 focus:outline-none">
+          <i data-feather="x" class="w-6 h-6"></i>
+        </button>
+        <h3 id="modalTitle" class="text-3xl font-bold mb-4 text-emerald-800"></h3>
+        <img id="modalChart" class="w-full max-h-[500px] object-contain rounded-lg shadow mb-6" alt="Expanded chart" />
+        <p id="modalExplanation" class="text-gray-700 italic">Loading explanation...</p>
+      </div>
+    </div>
+
+    <script>
+      feather.replace();
+
+      const chartModal = document.getElementById('chartModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalChart = document.getElementById('modalChart');
+      const modalExplanation = document.getElementById('modalExplanation');
+      const modalContent = document.getElementById('modalContent');
+
+      const explanations = {
+        'Mood Over Time': 'This chart shows mood variations over days or weeks to help identify long-term emotional patterns.',
+        'Forecasted Mood': 'Predictive analysis estimating your upcoming mood states using past data trends.',
+        'Cluster Analysis': 'Groups users by similar mental health profiles to reveal patterns across populations.',
+        'National Mood Trend': 'Aggregated national mood sentiment over time from reported user data.',
+        'Mood by Region': 'Geographic mapping of mood states across regions of Haiti.',
+        'Top Symptoms': 'Shows the most commonly reported mental health symptoms ranked by frequency.',
+        'Intervention Efficacy': 'Comparative effectiveness of interventions such as therapy or medication.',
+        'Demographics by Age': 'Distribution of mental health metrics segmented by age groups.'
+      };
+
+      function openModal(imageSrc, title) {
+        modalTitle.textContent = title;
+        modalChart.src = imageSrc;
+        modalExplanation.textContent = explanations[title] || 'Additional details about this chart.';
+
+        chartModal.classList.remove('hidden');
+        chartModal.classList.add('flex');
+        setTimeout(() => {
+          modalContent.classList.add('modal-enter-active');
+          modalContent.classList.remove('modal-enter');
+        }, 10);
+      }
+
+      function closeModal() {
+        modalContent.classList.add('modal-leave-active');
+        modalContent.classList.remove('modal-enter-active');
+        setTimeout(() => {
+          chartModal.classList.add('hidden');
+          chartModal.classList.remove('flex');
+          modalContent.classList.remove('modal-leave-active');
+          modalContent.classList.add('modal-enter');
+        }, 300);
+      }
+
+      chartModal.addEventListener('click', (e) => {
+        if (e.target === chartModal) {
+          closeModal();
+        }
+      });
+    </script>
+
+    <style>
+      .card {
+        @apply p-6 rounded-2xl shadow bg-white hover:scale-105 transition cursor-pointer;
+      }
+      .card-title {
+        @apply text-xl font-semibold text-emerald-700 mb-2;
+      }
+      .card-desc {
+        @apply text-sm text-gray-600 mb-2;
+      }
+      .card-img {
+        @apply rounded-lg shadow w-full;
+      }
+    </style>
+
+  </body>
+</html>

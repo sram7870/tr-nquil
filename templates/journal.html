@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mental Health Journal</title>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Trebuchet MS"', 'Helvetica', 'sans-serif']
+                    },
+                    colors: {
+                        primaryGreen: {
+                            DEFAULT: '#256d3b',
+                            light: '#4a9867',
+                            dark: '#1d502a',
+                        },
+                        offwhite: '#f8faf6',
+                        calmGray: {
+                            light: '#e6e8e3',
+                            DEFAULT: '#9ca3af',
+                            dark: '#6b7280',
+                        }
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' }
+                        }
+                    },
+                    animation: {
+                        fadeIn: 'fadeIn 0.5s ease-out forwards'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8faf6;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none !important;
+        }
+        #editor {
+            height: 280px;
+            background: white;
+            border: 1px solid #9ca3af;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            overflow-y: auto;
+        }
+        .mood-btn {
+            border-radius: 9999px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            padding: 0.5rem 0.75rem;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .mood-btn:hover {
+            transform: scale(1.1);
+        }
+        .mood-btn.selected {
+            border-color: #256d3b;
+            background-color: #d1fae5;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            /* You may need to use background-image to create a green highlight effect */
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 24 24"><path fill="green" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/><path fill="white" d="M9 10h1v1H9v-1zM11 10h1v1h-1v-1zM13 10h1v1h-1v-1zM9 12h1v1H9v-1zM11 12h1v1h-1v-1zM13 12h1v1h-1v-1zM9 14h1v1H9v-1zM11 14h1v1h-1v-1zM13 14h1v1h-1v-1z"/></svg>') no-repeat;
+            background-size: cover;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="text-primaryGreen font-sans">
+
+<nav class="bg-[#f9f9f6] backdrop-blur-md shadow-sm border-b border-gray-200 py-4 px-8 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+        <i data-feather="home" class="w-5 h-5 text-[#2f5930]"></i>
+        <span class="text-lg font-bold text-[#2f5930] tracking-wide">Dashboard</span>
+    </div>
+    <div class="flex space-x-6 text-sm font-medium">
+        <a href="/journal" class="text-gray-600 hover:text-[#2f5930]">Journal</a>
+        <a href="/quiz" class="text-gray-600 hover:text-[#2f5930]">Quiz</a>
+        <a href="/stats" class="text-gray-600 hover:text-[#2f5930]">Statistics</a>
+        <a href="/info" class="text-gray-600 hover:text-[#2f5930]">Info</a>
+        <a href="connections.html">Connections</a>
+    </div>
+</nav>
+
+<div class="w-2 fixed top-0 right-0 bottom-0 bg-calmGray-light transition-colors duration-500 z-20"></div>
+
+<main class="max-w-6xl mx-auto py-10 px-6 animate-fadeIn">
+    <header class="mb-10 text-center">
+        <h1 class="text-5xl font-bold mb-3">Mental Health Journal</h1>
+        <p class="text-primaryGreen-dark text-lg">Track mood, journal, set goals, and gain insight — all in one peaceful place.</p>
+    </header>
+
+    <section class="flex gap-4 mb-6 flex-wrap items-center justify-center animate-fadeIn">
+        <label for="currentDate" class="font-semibold text-primaryGreen-dark">Date:</label>
+        <input type="date" id="currentDate" class="border border-calmGray rounded px-3 py-1 focus:outline-none focus:border-primaryGreen" />
+
+        <button id="loadEntryBtn" class="bg-primaryGreen hover:bg-primaryGreen-dark text-offwhite px-5 py-2 rounded font-semibold shadow-md transition-transform hover:scale-105">Load / Create Entry</button>
+        <button id="saveBtn" class="bg-primaryGreen hover:bg-primaryGreen-dark text-offwhite px-5 py-2 rounded font-semibold shadow-md" disabled>Save Entry</button>
+        <button id="clearBtn" class="bg-calmGray hover:bg-calmGray-dark text-white px-5 py-2 rounded font-semibold shadow-md">Clear Editor</button>
+        <button id="recordVoiceBtn" class="bg-calmGray hover:bg-calmGray-dark text-white px-5 py-2 rounded font-semibold shadow-md">Voice-type</button>
+    </section>
+
+    <section class="bg-white rounded-3xl shadow-xl p-8 mb-10 transition-shadow duration-300 hover:shadow-2xl animate-fadeIn">
+        <label for="editor" class="block mb-2 font-semibold text-primaryGreen-dark">Journal Entry:</label>
+        <div id="editor" placeholder="Write your journal entry here..."></div>
+
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Mood selector -->
+            <div>
+                <label class="block mb-2 font-semibold text-primaryGreen-dark">Mood Today:</label>
+                <div id="moodSelector" class="flex gap-5 flex-wrap">
+                    <button class="mood-btn" data-mood="happy">😊</button>
+                    <button class="mood-btn" data-mood="calm">😌</button>
+                    <button class="mood-btn" data-mood="neutral">😐</button>
+                    <button class="mood-btn" data-mood="sad">😔</button>
+                    <button class="mood-btn" data-mood="anxious">😟</button>
+                    <button class="mood-btn" data-mood="angry">😠</button>
+                </div>
+            </div>
+
+            <!-- Tags input -->
+            <div>
+                <label for="tags" class="block mb-2 font-semibold text-primaryGreen-dark">Tags:</label>
+                <input type="text" id="tags" placeholder="e.g. anxiety, gratitude" class="border border-calmGray rounded px-3 py-2 w-full focus:outline-none focus:border-primaryGreen" />
+            </div>
+
+            <!-- Habits -->
+            <div>
+                <label class="block mb-2 font-semibold text-primaryGreen-dark">Habits:</label>
+                <div class="flex flex-col gap-2">
+                    <label class="flex items-center gap-2"><input type="checkbox" data-habit="meditation" /> Meditation</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" data-habit="exercise" /> Exercise</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" data-habit="journal" /> Journal</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" data-habit="mindfulness" /> Mindfulness</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals -->
+        <section class="mt-10 pt-6 border-t border-calmGray-light">
+            <h2 class="text-2xl font-semibold mb-4 text-primaryGreen-dark">Goals & Progress</h2>
+            <div class="flex gap-4 items-center flex-wrap mb-4">
+                <input id="newGoalInput" type="text" placeholder="Add a new goal..." class="border border-calmGray rounded px-3 py-2 flex-grow focus:outline-none focus:border-primaryGreen" />
+                <button id="addGoalBtn" class="bg-primaryGreen hover:bg-primaryGreen-dark text-offwhite px-4 py-2 rounded font-semibold shadow-md">Add Goal</button>
+            </div>
+            <ul id="goalsList" class="space-y-3"></ul>
+        </section>
+    </section>
+
+    <!-- Search Previous Entries -->
+    <section class="mb-16 animate-fade-in-up">
+        <h2 class="text-3xl font-bold mb-6 text-primaryGreen-dark">Search Your Journal</h2>
+        <div class="bg-white rounded-3xl shadow-xl p-8 mb-10 transition-shadow duration-300 hover:shadow-2xl animate-fadeIn">
+            <div class="flex flex-col md:flex-row gap-4 items-center mb-6">
+                <input
+                        id="search"
+                        type="search"
+                        placeholder="Search by tag, mood, or keyword..."
+                        class="flex-grow border border-calmGray rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primaryGreen"
+                />
+                <button id="searchBtn" class="bg-primaryGreen hover:bg-primaryGreen-dark transition text-white px-5 py-2 rounded-lg font-semibold shadow">Search</button>
+                <button id="showAllBtn" class="bg-calmGray hover:bg-calmGray-dark transition text-white px-5 py-2 rounded-lg font-semibold shadow">Show All</button>
+            </div>
+            <ul id="searchResults" class="space-y-2 max-h-72 overflow-y-auto border border-calmGray rounded-lg p-4 bg-offwhite text-sm font-medium text-primaryGreen-dark"></ul>
+        </div>
+    </section>
+
+    <!-- AI Tools and Analytics -->
+    <section class="mb-20 animate-fade-in-up">
+        <h2 class="text-3xl font-bold mb-6 text-primaryGreen-dark">AI Tools & Analytics</h2>
+        <div class="bg-white rounded-3xl shadow-xl p-8 mb-10 transition-shadow duration-300 hover:shadow-2xl animate-fadeIn">
+            <div class="flex flex-wrap gap-4 mb-6">
+                <button id="sentimentBtn" class="bg-primaryGreen hover:bg-primaryGreen-dark transition text-white px-5 py-2 rounded-lg font-semibold shadow">Analyze Sentiment</button>
+                <button id="summaryBtn" class="bg-primaryGreen hover:bg-primaryGreen-dark transition text-white px-5 py-2 rounded-lg font-semibold shadow">Generate Summary</button>
+                <button id="moodTrendBtn" class="bg-primaryGreen hover:bg-primaryGreen-dark transition text-white px-5 py-2 rounded-lg font-semibold shadow">Show Mood Trend</button>
+            </div>
+            <div class="mb-6">
+                <label for="journalVisibility" class="block font-medium mb-1 text-primaryGreen-dark">Journal Visibility</label>
+                <select id="journalVisibility" class="p-3 rounded border w-full bg-white focus:outline-none focus:ring-2 focus:ring-primaryGreen">
+                    <option value="private" selected>Private</option>
+                    <option value="share">Share with specific user</option>
+                    <option value="group">Share with group</option>
+                </select>
+            </div>
+            <div id="shareControls" class="mb-6 hidden">
+                <label for="shareWith" class="block text-sm font-medium mb-1 text-gray-700">Share With (Username or Group)</label>
+                <input id="shareWith" type="text" placeholder="e.g., therapist123 or my-group" class="p-3 border rounded w-full focus:outline-none focus:ring-2 focus:ring-primaryGreen" />
+            </div>
+            <div id="aiOutput" class="p-4 bg-offwhite border border-primaryGreen rounded-xl min-h-[150px] whitespace-pre-wrap text-primaryGreen-dark text-base"></div>
+        </div>
+    </section>
+
+    <!-- Micro Mindfulness Exercises -->
+    <section class="bg-white rounded-3xl shadow-xl p-8 mb-10 transition-shadow duration-300 hover:shadow-2xl animate-fadeIn">
+        <h2 class="text-2xl font-semibold mb-4 text-primaryGreen-dark">Micro Mindfulness Exercises</h2>
+
+        <div class="relative overflow-hidden">
+            <!-- Carousel container: flex row, width 500% for 5 slides -->
+            <div id="carousel" class="flex transition-transform duration-500 ease-in-out" style="width:500%;">
+                <!-- Each exercise slide: width 20% -->
+                <div class="w-1/5 px-4 flex-shrink-0 text-primaryGreen-dark" aria-label="Breathing exercise">
+                    <h3 class="font-semibold mb-3">Breathing</h3>
+                    <p class="mb-4">
+                        Take a moment to breathe deeply and center yourself. Follow this 3-minute guided breathing:
+                    </p>
+                    <p class="mb-6 italic text-sm">
+                        Inhale deeply through your nose for 4 seconds, hold for 4 seconds, exhale slowly for 6 seconds. Repeat until the timer ends.
+                    </p>
+                    <div class="flex items-center gap-6 mb-4">
+                        <button id="startBreathingBtn" class="bg-primaryGreen hover:bg-primaryGreen-dark text-offwhite px-5 py-2 rounded font-semibold shadow-md">
+                            Start 3-Min Breathing
+                        </button>
+                        <div id="breathingTimer" class="font-mono text-2xl min-w-[90px] text-center select-none">03:00</div>
+                    </div>
+                </div>
+
+                <div class="w-1/5 px-4 flex-shrink-0 text-primaryGreen-dark" aria-label="Body scan exercise">
+                    <h3 class="font-semibold mb-3">Body Scan</h3>
+                    <p class="mb-4">
+                        Close your eyes and slowly bring attention to each part of your body from head to toes.
+                    </p>
+                    <p class="italic text-sm">
+                        Notice sensations without judgment. Spend about 5 minutes observing how your body feels.
+                    </p>
+                </div>
+
+                <div class="w-1/5 px-4 flex-shrink-0 text-primaryGreen-dark" aria-label="Gratitude exercise">
+                    <h3 class="font-semibold mb-3">Gratitude</h3>
+                    <p class="mb-4">
+                        Reflect on three things you're grateful for today. Think about why they matter to you.
+                    </p>
+                    <p class="italic text-sm">
+                        Writing these down in your journal can deepen this practice.
+                    </p>
+                </div>
+
+                <div class="w-1/5 px-4 flex-shrink-0 text-primaryGreen-dark" aria-label="Mindful walk exercise">
+                    <h3 class="font-semibold mb-3">Mindful Walk</h3>
+                    <p class="mb-4">
+                        Take a slow, intentional walk focusing on each step and your surroundings.
+                    </p>
+                    <p class="italic text-sm">
+                        Engage your senses — the feel of the ground, sounds, smells, and sights around you.
+                    </p>
+                </div>
+
+                <div class="w-1/5 px-4 flex-shrink-0 text-primaryGreen-dark" aria-label="Visualization exercise">
+                    <h3 class="font-semibold mb-3">Visualization</h3>
+                    <p class="mb-4">
+                        Close your eyes and visualize a peaceful place or a positive future event.
+                    </p>
+                    <p class="italic text-sm">
+                        Immerse yourself in the details and emotions of this visualization for a few minutes.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Navigation arrows -->
+            <button id="prevBtn" aria-label="Previous exercise"
+                    class="absolute top-1/2 -left-3 transform -translate-y-1/2">
+                &#9664;
+            </button>
+            <button id="nextBtn" aria-label="Next exercise"
+                    class="absolute top-1/2 -right-3 transform -translate-y-1/2">
+                &#9654;
+            </button>
+        </div>
+    </section>
+
+    <script>
+        (() => {
+            const carousel = document.getElementById('carousel');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const totalSlides = 5;
+            let currentIndex = 0;
+
+            function updateCarousel() {
+                // Move carousel by -index * 20%
+                carousel.style.transform = `translateX(-${currentIndex * 20}%)`;
+            }
+
+            prevBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+                updateCarousel();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % totalSlides;
+                updateCarousel();
+            });
+
+            // Optional: Keyboard support for arrows
+            window.addEventListener('keydown', e => {
+                if (e.key === "ArrowLeft") prevBtn.click();
+                if (e.key === "ArrowRight") nextBtn.click();
+            });
+
+            updateCarousel();
+        })();
+    </script>
+
+    <!-- Footer info -->
+    <footer class="bg-[#f9f9f6] border-t border-calmGray-light py-10 px-6 text-sm text-primaryGreen-dark text-center animate-fade-in-up">
+        <div class="max-w-2xl mx-auto">
+            <button id="toggle-info" class="underline font-medium cursor-pointer mb-4">Learn more about journaling benefits</button>
+            <div id="journal-info" class="transition-all duration-500 overflow-hidden max-h-0">
+                <p class="mb-3">
+                    Regular journaling helps you process emotions, track moods, and reflect over time. Our AI tools provide deeper insights tailored to support your mental wellness journey. By writing regularly, you create a safe space for emotional expression, where thoughts and feelings can be externalized, organized, and understood.
+                </p>
+                <p class="mb-3">
+                    This journal serves as both a reflective mirror and a proactive planner. You can identify mood patterns, track personal growth, and even develop mindfulness habits that contribute to long-term emotional resilience. Whether you're writing down stress triggers or celebrating small wins, journaling builds emotional awareness and self-understanding.
+                </p>
+                <p class="mb-3">
+                    While journaling is a powerful tool, it is not a substitute for professional mental health care. If you're facing persistent distress, feelings of hopelessness, or need personalized support, please seek help from a licensed mental health professional. Your well-being matters, and reaching out is a sign of strength.
+                </p>
+            </div>
+
+            <hr class="my-6 border-calmGray" />
+    </footer>
+</main>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script src="{{ url_for('static', filename='journal.js') }}"></script>
+<script>
+    // Toggle journaling benefits
+    const toggleBtn = document.getElementById('toggle-info');
+    const journalInfo = document.getElementById('journal-info');
+
+    toggleBtn.addEventListener('click', () => {
+        const isOpen = journalInfo.style.maxHeight && journalInfo.style.maxHeight !== '0px';
+        if (isOpen) {
+            journalInfo.style.maxHeight = '0';
+            journalInfo.style.padding = '0';
+            toggleBtn.textContent = 'Learn more about journaling benefits';
+        } else {
+            journalInfo.style.maxHeight = journalInfo.scrollHeight + 'px';
+            journalInfo.style.padding = '1rem 0';
+            toggleBtn.textContent = 'Hide journaling benefits';
+        }
+    });
+</script>
+<script>
+    // Initialize Quill editor
+    document.addEventListener("DOMContentLoaded", function () {
+    const quill = new Quill("#editor", {
+    theme: "snow",
+    placeholder: "Write your journal entry here..."
+});
+
+    // Optional: expose `quill` globally for debugging or saving content
+    window.quill = quill;
+});
+</script>
+
+</body>
+</html>

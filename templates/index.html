@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Mental Health Chatbot Carousel</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://unpkg.com/feather-icons"></script>
+        <script src="{{ url_for('static', filename='index/chatbot.js') }}"></script>
+        <script src="{{ url_for('static', filename='index/mentalCheckin.js') }}"></script>
+        <script src="{{ url_for('static', filename='index/imageGen.js') }}"></script>
+        <script src="{{ url_for('static', filename='index/indexScript.js') }}"></script>
+        <script src="{{ url_for('static', filename='index/importantText.js') }}"></script>
+        <script src="{{ url_for('static', filename='index/physical.js') }}"></script>
+
+        <style>
+            body {
+                background-color: #f9f9f6;
+                font-family: 'Inter', sans-serif;
+                color: #2d2d2d;
+                margin: 0;
+                padding: 0;
+            }
+
+            .glass {
+                background-color: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(12px) saturate(160%);
+                -webkit-backdrop-filter: blur(12px) saturate(160%);
+                border: 1px solid rgba(0, 0, 0, 0.05);
+                box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
+            }
+
+            /* Carousel container */
+            .carousel-wrapper {
+                position: relative;
+                max-width: 960px;
+                margin: 3rem auto 6rem; /* leave space for dots */
+                padding: 0 3rem; /* space for arrows */
+            }
+
+            #carousel {
+                display: flex;
+                overflow-x: scroll;
+                scroll-snap-type: x mandatory;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+                gap: 2rem;
+                padding-bottom: 1rem; /* so dots don't overlap */
+            }
+
+            /* Hide scrollbar but allow scrolling */
+            #carousel::-webkit-scrollbar {
+                display: none;
+            }
+            #carousel {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            /* Each card same size as chatbot container */
+            .card {
+                flex: 0 0 100%;
+                scroll-snap-align: start;
+                background-color: #fdfdfb;
+                border: 1px solid #cbd5e1;
+                border-radius: 1.5rem;
+                box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.06);
+                padding: 2.5rem 3rem;
+                height: 60rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+
+            /* Title in cards */
+            .card h2 {
+                color: #2f5930;
+                font-weight: 800;
+                font-size: 1.75rem;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            }
+
+            /* Arrows outside carousel */
+            .carousel-arrow {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                background-color: #f9f9f6;
+                border: 1px solid #cbd5e1;
+                border-radius: 9999px;
+                width: 3rem;
+                height: 3rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #2f5930;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+                user-select: none;
+                z-index: 10;
+            }
+
+            .carousel-arrow:hover {
+                background-color: #e0f0d9;
+                color: #236225;
+            }
+
+            #left-arrow {
+                left: 0.5rem;
+            }
+
+            #right-arrow {
+                right: 0.5rem;
+            }
+
+            /* Pagination dots */
+            .dots-container {
+                display: flex;
+                justify-content: center;
+                gap: 0.75rem;
+                margin-top: 1rem;
+            }
+
+            .dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 9999px;
+                background-color: #d1d5db; /* gray-300 */
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .dot.active {
+                background-color: #4b7f36; /* darker green */
+            }
+
+            /* Chat window styling inside card */
+            #chat-window {
+                flex-grow: 1;
+                overflow-y: auto;
+                background-color: #fdfdfb;
+                border: 1px solid #cbd5e1;
+                border-radius: 1rem;
+                padding-right: 32px;
+                padding-left: 32px;
+                padding-bottom: 32px;
+                box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.06);
+            }
+
+            #chat-window::-webkit-scrollbar {
+                width: 6px;
+            }
+            #chat-window::-webkit-scrollbar-thumb {
+                background-color: #cbd5e1;
+                border-radius: 9999px;
+            }
+
+            /* Typing indicator */
+            #typing-indicator {
+                margin-top: 0.5rem;
+                color: #6b7280;
+                font-style: italic;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            /* Typing dots animation */
+            .typing-dots {
+                display: inline-flex;
+                gap: 4px;
+                align-items: center;
+                justify-content: center;
+            }
+            .typing-dots span {
+                display: block;
+                width: 6px;
+                height: 6px;
+                background-color: #6b7280;
+                border-radius: 50%;
+                animation: bounce 1.2s infinite ease-in-out;
+            }
+            .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+            .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+            @keyframes bounce {
+                0%, 80%, 100% { transform: scale(0); }
+                40% { transform: scale(1); }
+            }
+
+            /* Chat input form */
+            #chat-form {
+                margin-top: 1.5rem;
+                display: flex;
+                background-color: white;
+                border: 1px solid #cbd5e1;
+                border-radius: 9999px;
+                box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+                overflow: hidden;
+                focus-within: ring 2px #2f5930;
+            }
+
+            #chat-form input {
+                flex-grow: 1;
+                padding: 0.75rem 1.25rem;
+                font-size: 1rem;
+                background-color: transparent;
+                border: none;
+                outline: none;
+            }
+
+            #chat-form button {
+                padding: 0 1.25rem;
+                color: #2f5930;
+                background-color: transparent;
+                border: none;
+                cursor: pointer;
+                font-size: 1.1rem;
+                transition: color 0.2s;
+            }
+
+            #chat-form button#send-button {
+                background-color: #2f5930;
+                color: white;
+                font-weight: 600;
+                border-radius: 0 9999px 9999px 0;
+                padding: 0 1.5rem;
+            }
+            #chat-form button#send-button:hover {
+                background-color: #236225;
+            }
+            #chat-form button#mic-button:hover {
+                color: #236225;
+            }
+        </style>
+    </head>
+    <body>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-[#f9f9f6] backdrop-blur-md shadow-sm border-b border-gray-200 py-4 px-8 flex items-center justify-between sticky top-0 z-50">
+            <div class="flex items-center space-x-3">
+                <i data-feather="home" class="w-5 h-5 text-[#2f5930]"></i>
+                <span class="text-lg font-bold text-[#2f5930] tracking-wide">Dashboard</span>
+            </div>
+            <div class="flex space-x-6 text-sm font-medium">
+                <a href="/journal" class="text-gray-600 hover:text-[#2f5930]">Journal</a>
+                <a href="/quiz" class="text-gray-600 hover:text-[#2f5930]">Quiz</a>
+                <a href="/stats" class="text-gray-600 hover:text-[#2f5930]">Statistics</a>
+                <a href="/info" class="text-gray-600 hover:text-[#2f5930]">Info</a>
+                <a href="connections.html">Connections</a>
+            </div>
+        </nav>
+
+        <!-- Carousel Wrapper -->
+        <div class="carousel-wrapper">
+            <div id="carousel" aria-label="Mental Health Features Carousel" tabindex="0">
+
+                <!-- Wellness Checkin -->
+
+                <div id="mental-health-checkin" class="fixed inset-0 bg-[#f0f6f4] flex flex-col items-center justify-center p-6 select-none font-sans text-gray-900" style="z-index: 10000;">
+
+                    <div class="max-w-xl w-full bg-white rounded-3xl shadow-xl p-8 flex flex-col space-y-8 relative">
+
+                        <!-- Close Button -->
+                        <button
+                                id="close-btn"
+                                aria-label="Close"
+                                class="absolute top-4 right-4 text-green-700 hover:text-green-900 font-bold text-xl select-none"
+                                style="line-height: 1;"
+                                title="Close"
+                        >
+                            &times;
+                        </button>
+
+                        <!-- Step Indicator -->
+                        <div class="flex justify-between text-sm font-semibold text-green-700 mb-2">
+                            <span>Step <span id="step-current">1</span> of 4</span>
+                        </div>
+
+                        <!-- Step Content Container -->
+                        <div id="step-content" class="min-h-[320px] transition-opacity duration-300 ease-in-out">
+
+                            <!-- Step 1: Emotion Reflection -->
+                            <div class="step step-1 space-y-6">
+                                <h2 class="text-2xl font-bold text-green-800">How are you feeling right now?</h2>
+                                <p class="text-gray-600">Drag the slider to select your current mood.</p>
+
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-3xl select-none">😞</span>
+                                    <input
+                                            type="range"
+                                            id="mood-slider"
+                                            min="1"
+                                            max="5"
+                                            step="1"
+                                            value="3"
+                                            class="w-full h-2 rounded-lg accent-green-600 cursor-pointer"
+                                    />
+                                    <span class="text-3xl select-none">😄</span>
+                                </div>
+
+                                <div class="text-center text-xl font-semibold text-green-700" id="mood-label">Neutral</div>
+                            </div>
+
+                            <!-- Step 2: Pick Recent Stressors -->
+                            <div class="step step-2 hidden space-y-4">
+                                <h2 class="text-2xl font-bold text-green-800">What has been stressing you recently?</h2>
+                                <p class="text-gray-600">Select all that apply.</p>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="stressors" value="School" class="accent-green-600" />
+                                        <span>School</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="stressors" value="Family" class="accent-green-600" />
+                                        <span>Family</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="stressors" value="Sleep" class="accent-green-600" />
+                                        <span>Sleep</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="stressors" value="Work" class="accent-green-600" />
+                                        <span>Work</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="stressors" value="Relationships" class="accent-green-600" />
+                                        <span>Relationships</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="stressors" value="Health" class="accent-green-600" />
+                                        <span>Health</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Coping Activities -->
+                            <div class="step step-3 hidden space-y-4">
+                                <h2 class="text-2xl font-bold text-green-800">What coping activities have you tried?</h2>
+                                <p class="text-gray-600">Select all that apply.</p>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="coping" value="Journaling" class="accent-green-600" />
+                                        <span>Journaling</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="coping" value="Walking" class="accent-green-600" />
+                                        <span>Walking</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="coping" value="Meditation" class="accent-green-600" />
+                                        <span>Meditation</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="coping" value="Talking to Someone" class="accent-green-600" />
+                                        <span>Talking to Someone</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="coping" value="Nothing" class="accent-green-600" />
+                                        <span>Nothing</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" name="coping" value="Other" class="accent-green-600" />
+                                        <span>Other</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Calming Visualization & Breathing -->
+                            <div class="step step-4 hidden space-y-6 text-center">
+                                <h2 class="text-2xl font-bold text-green-800 mb-4">Take a moment to breathe</h2>
+
+                                <!-- Simple breathing circle animation -->
+                                <div
+                                        id="breathing-circle"
+                                        class="mx-auto mb-6 rounded-full bg-green-300"
+                                        style="width: 120px; height: 120px; animation: breathe 4s ease-in-out infinite;"
+                                ></div>
+
+                                <p class="text-gray-700 italic mb-4 max-w-md mx-auto">
+                                    Breathe in deeply through your nose... hold... now breathe out slowly through your mouth...
+                                </p>
+
+                                <p class="text-lg font-semibold text-green-700 max-w-md mx-auto">
+                                    "You are doing great. This moment is yours."
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="flex justify-between mt-2">
+                            <button
+                                    id="back-btn"
+                                    class="px-5 py-3 rounded-full border border-green-700 text-green-700 font-semibold hover:bg-green-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled
+                            >
+                                Back
+                            </button>
+
+                            <button
+                                    id="next-btn"
+                                    class="px-5 py-3 rounded-full bg-green-700 text-white font-semibold hover:bg-green-800"
+                            >
+                                Next
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <style>
+                        @keyframes breathe {
+                            0%, 100% { transform: scale(1); opacity: 0.7; }
+                            50% { transform: scale(1.4); opacity: 1; }
+                        }
+                    </style>
+
+                </div>
+
+
+                <!-- Card 1: Chatbot -->
+                <section class="card" aria-label="Mental Health Chatbot">
+                    <h2>Mental Health Chatbot</h2>
+
+                    <div id="chat-window" class="overflow-y-auto">
+                        <!-- Chat messages appear here -->
+                    </div>
+
+                    <div id="typing-indicator" style="display: none">
+                        <span>Bot is thinking</span>
+                        <div class="typing-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+
+                    <form id="chat-form">
+                        <input
+                                type="text"
+                                id="user-input"
+                                placeholder="Type a message..."
+                                autocomplete="off"
+                        />
+                        <button type="button" id="mic-button" title="Speak">
+                            <i data-feather="mic"></i>
+                        </button>
+                        <button type="submit" id="send-button">Send</button>
+                    </form>
+
+                    <div class="mt-6 text-sm text-gray-700">
+                        <p class="font-semibold mb-2">Need Help?</p>
+                        <ul class="list-disc list-inside mb-2">
+                            <li>National Suicide Prevention Lifeline: <a href="tel:988" class="underline text-blue-600 hover:text-blue-800">988</a></li>
+                            <li>Crisis Text Line: Text <code>HOME</code> to <a href="sms:741741" class="underline text-blue-600 hover:text-blue-800">741741</a></li>
+                            <li>SAMHSA Helpline: <a href="tel:1-800-662-4357" class="underline text-blue-600 hover:text-blue-800">1-800-662-HELP (4357)</a></li>
+                            <li>NAMI Helpline: <a href="tel:1-800-950-6264" class="underline text-blue-600 hover:text-blue-800">1-800-950-NAMI (6264)</a></li>
+                        </ul>
+                        <p>Reaching out is a sign of strength. Help is available whenever you need it.</p>
+                    </div>
+                </section>
+
+                <!-- Card 2: Art Generator -->
+                <section class="card" aria-label="Journal">
+                    <div class="carousel-slide" id="art-generator-slide">
+                        <h2>Emotional Art Generator</h2>
+                        <p class="text-gray-600 mb-7">Describe how you're feeling, and we'll turn it into expressive art.</p>
+
+                        <textarea id="emotion-description" class="w-full p-3 border rounded-lg" placeholder="Type how you feel..."></textarea>
+
+                        <button id="generate-art-btn" class="bg-green-700 text-white px-4 py-3 mt-7 mb-7 rounded hover:bg-green-800">
+                            Generate
+                        </button>
+
+                        <div id="generated-art-container" class="hidden mt-4 space-y-4">
+                            <img id="generated-art" class="rounded-xl shadow-md mx-auto max-w-full h-auto" />
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Card 3: Helpful Text -->
+                <section class="card" aria-label="Daily Mental Boost">
+                    <div id="daily-mental-boost" class="space-y-8">
+
+                        <div>
+                            <h2 class="text-2xl font-semibold text-gray-900 mb-6 border-b border-gray-300 pb-8">Prompt of the Day</h2>
+                            <p id="daily-prompt" class="text-gray-700 italic leading-relaxed min-h-[3rem]">Loading prompt...</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2 border-b border-gray-300 pb-4">Inspirational Quote</h3>
+                            <blockquote id="daily-quote" class="text-gray-800 italic border-l-4 border-blue-500 pl-4 min-h-[4rem]">Loading quote...</blockquote>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2 border-b border-gray-300 pb-4">Encouraging Activities</h3>
+                            <ul id="daily-activities" class="list-disc list-inside space-y-3 text-gray-700 min-h-[6rem]">
+                                <li>Loading activities...</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2 border-b border-gray-300 pb-4">Mindfulness Tip</h3>
+                            <p id="daily-tip" class="text-gray-700 italic min-h-[3rem]">Loading tip...</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2 border-b border-gray-300 pb-4">Motivational Affirmation</h3>
+                            <p id="daily-affirmation" class="text-gray-700 italic min-h-[3rem]">Loading affirmation...</p>
+                        </div>
+
+                        <div class="text-right">
+                            <button id="regenerate-boost" class="bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 text-white font-semibold px-5 py-2 rounded-md transition duration-300">
+                                Regenerate
+                            </button>
+                        </div>
+
+                    </div>
+                </section>
+
+
+
+                <!-- Card 4: Physical and Nutrition -->
+                <section class="card mt-10" aria-label="Personalized Wellness Input">
+                    <div class="space-y-6">
+
+                        <h2 class="text-2xl font-semibold text-gray-900 mb-6 border-b border-gray-300 pb-8">Tell Us About Your Wellness</h2>
+
+                        <label for="wellness-input" class="block text-gray-800 font-medium mb-2">
+                            Please describe your recent sleep quality, exercise amount, current state, and wellness goals:
+                        </label>
+                        <textarea id="wellness-input" rows="6" class="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Example: I slept 6 hours, exercised lightly, feeling stressed, and want to improve my energy levels."></textarea>
+
+                        <button id="generate-plan" class="bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 text-white font-semibold px-6 py-3 rounded-md transition duration-300">
+                            Generate Nutrition & Exercise Plan
+                        </button>
+
+                        <div id="generated-plan" class="mt-8 p-6 rounded-md min-h-[10rem] text-gray-700 whitespace-pre-line">
+
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Card 5: Placeholder Info -->
+                <section class="card" aria-label="Info">
+                    <h2>Info</h2>
+                    <p>Feature coming soon: Access mental health resources and information.</p>
+                </section>
+
+            </div>
+
+            <!-- Arrows -->
+            <button id="left-arrow" class="carousel-arrow" aria-label="Previous card">
+                <i data-feather="chevron-left"></i>
+            </button>
+            <button id="right-arrow" class="carousel-arrow" aria-label="Next card">
+                <i data-feather="chevron-right"></i>
+            </button>
+
+            <!-- Pagination dots -->
+            <div class="dots-container" role="tablist" aria-label="Carousel Pagination">
+                <button class="dot active" role="tab" aria-selected="true" aria-label="Card 1"></button>
+                <button class="dot" role="tab" aria-selected="false" aria-label="Card 2"></button>
+                <button class="dot" role="tab" aria-selected="false" aria-label="Card 3"></button>
+                <button class="dot" role="tab" aria-selected="false" aria-label="Card 4"></button>
+                <button class="dot" role="tab" aria-selected="false" aria-label="Card 5"></button>
+            </div>
+        </div>
+    </body>`
+</html>

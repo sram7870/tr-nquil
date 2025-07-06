@@ -1,0 +1,30 @@
+{
+  "2025-06-21": {
+    "content": "<p>I have been feeling depressed. </p>",
+    "mood": "happy",
+    "tags": [
+      "anx"
+    ],
+    "habits": {
+      "meditation": false,
+      "exercise": false,
+      "journal": false,
+      "mindfulness": false
+    },
+    "goals": []
+  },
+  "2025-07-05": {
+    "content": "<p>I have been feeling really well today!</p>",
+    "mood": "happy",
+    "tags": [
+      "anxiety"
+    ],
+    "habits": {
+      "meditation": false,
+      "exercise": false,
+      "journal": false,
+      "mindfulness": false
+    },
+    "goals": []
+  }
+}

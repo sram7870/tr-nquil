@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Accessible Mental Health for All</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        .prose p {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans leading-relaxed">
+
+<!-- Navigation Bar -->
+<nav class="bg-[#f9f9f6] backdrop-blur-md shadow-sm border-b border-gray-200 py-4 px-8 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+        <i data-feather="home" class="w-5 h-5 text-[#2f5930]"></i>
+        <span class="text-lg font-bold text-[#2f5930] tracking-wide">Dashboard</span>
+    </div>
+    <div class="flex space-x-6 text-sm font-medium">
+        <a href="/journal" class="text-gray-600 hover:text-[#2f5930]">Journal</a>
+        <a href="/quiz" class="text-gray-600 hover:text-[#2f5930]">Quiz</a>
+        <a href="/stats" class="text-gray-600 hover:text-[#2f5930]">Statistics</a>
+        <a href="/info" class="text-gray-600 hover:text-[#2f5930]">Info</a>
+        <a href="connections.html">Connections</a>
+    </div>
+</nav>
+
+<div class="max-w-6xl mx-auto py-12 px-6">
+    <h1 class="text-5xl font-extrabold mb-10 text-center" data-aos="fade-down">Accessible Mental Health for All</h1>
+
+    <section class="mb-12 prose" data-aos="fade-up">
+        <h2>Purpose & Vision</h2>
+        <p>
+            Many regions worldwide face barriers to mental health care: underfunded systems, cultural stigma, conflict, displacement, poverty, and a shortage of trained professionals. Our platform aims to help close these gaps through self-guided, AI-supported tools that empower individuals and ease pressure on limited health infrastructure. The goal is transformation: not just delivering services, but creating scalable, culturally adaptable models of care for communities long overlooked.
+        </p>
+    </section>
+
+    <section class="mb-12 prose" data-aos="fade-up">
+        <h2>Why This Matters Globally</h2>
+        <p>
+            The World Health Organization reports a stark disparity in access to mental health services worldwide. Many low-resource countries have fewer than 2 trained mental health professionals per 100,000 people, while high-income countries average over 20 per 100,000. Budgets for mental health care rarely meet the recommended 2–3% of total health spending, with most resources concentrated in urban centers.
+        </p>
+        <p>
+            Meanwhile, the majority of people in these regions live in rural or underserved areas with little or no support. Conflict, disasters, displacement, and cultural stigma further increase the burden of untreated PTSD, anxiety, and depression, especially among young people who often make up a large share of the population.
+        </p>
+    </section>
+
+    <section class="mb-12 prose" data-aos="fade-up">
+        <h2>Platform Features & Innovations</h2>
+        <p>
+            To help address systemic shortages, our platform offers:
+        </p>
+        <ul>
+            <li><strong>Validated Self-Assessments:</strong> Standard screening tools (e.g., GAD-7, PHQ-9, PTSD check-ins) available in local languages with progress tracking.</li>
+            <li><strong>AI Chat Companion:</strong> A natural-language chatbot trained on therapeutic best practices for day-to-day support.</li>
+            <li><strong>Journaling + Sentiment Analysis:</strong> Daily reflection prompts with automatic emotion tagging and mood trends.</li>
+            <li><strong>Localized Wellness Guidance:</strong> Recommendations tailored to cultural practices—such as music, prayer, or mindfulness techniques.</li>
+            <li><strong>Clinician Dashboard:</strong> Alerts for high-risk users, population-level trends, and triage recommendations to extend the reach of limited professionals.</li>
+        </ul>
+    </section>
+
+    <section class="mb-12 prose" data-aos="fade-up">
+        <h2>Global Mental Health Workforce Comparison</h2>
+        <p>
+            The graph below illustrates the stark differences in the availability of mental health professionals per 100,000 population between low-resource settings, regional averages, and high-income countries. This inequality underscores the need for scalable, technology-driven solutions that can augment limited human resources and expand access to care in underserved areas.
+        </p>
+        <canvas id="mhChart" class="w-full max-w-3xl mx-auto my-8"></canvas>
+        <p class="text-sm text-gray-500 text-center">
+            Data are illustrative estimates based on WHO regional reports and may vary by country. Investments in training and technology are critical to closing this gap.
+        </p>
+    </section>
+
+    <section class="mb-12 prose" data-aos="fade-up">
+        <h2>Impact Across Dimensions</h2>
+        <p>
+            For individuals, early access to mental health tools can be lifesaving. Pilot studies show that simple interventions like journaling and chatbot interactions can reduce reported anxiety by 20–25% over just a few weeks. Self-assessments help users recognize warning signs before crises develop.
+        </p>
+        <p>
+            For health systems, digital triage and monitoring can multiply the impact of scarce professionals, allowing them to prioritize those most in need. This expands access, reduces untreated mental illness, and saves resources that can be redirected to other pressing needs.
+        </p>
+        <p>
+            On a broader scale, aggregate trends—such as community-level screening scores—can help governments and NGOs better plan targeted interventions, allocate resources more effectively, and design culturally relevant mental health strategies for communities previously overlooked.
+        </p>
+    </section>
+
+    <section class="mb-12 prose" data-aos="fade-up">
+        <h2>Development & Future Goals</h2>
+        <p>
+            We have built a functional prototype and are working with local health workers, community groups, and students to test and refine the platform. Our short-term roadmap includes:
+        </p>
+        <ul>
+            <li>Expanding testing to rural clinics and mobile outreach teams.</li>
+            <li>Adding voice-to-text in local languages for low-literacy users.</li>
+            <li>Partnering with NGOs and health ministries for clinical validation and training.</li>
+            <li>Launching anonymous crisis journal access for schools and community centers.</li>
+        </ul>
+        <p>
+            Long-term, we see this as a global model for low-resource settings: modular, trauma-informed, and culturally adaptable—ready to be replicated across regions with limited mental health care infrastructure.
+        </p>
+    </section>
+
+    <section class="mb-12 prose" data-aos="fade-up">
+        <h2>About the Developer</h2>
+        <p>
+            I am a student passionate about using technology to address deep human challenges. This project is driven by a belief in equity, community resilience, and the transformative potential of youth innovation to create meaningful change in mental health care access around the world.
+        </p>
+    </section>
+
+    <section class="mb-12" data-aos="fade-up">
+        <h2 class="text-2xl font-semibold mb-4">FAQ</h2>
+        <div class="space-y-4">
+            <div x-data="{ open: false }" class="border rounded">
+                <button @click="open = !open" class="w-full flex justify-between items-center px-4 py-3 bg-gray-100 hover:bg-gray-200">
+                    <span>Why is a digital platform necessary?</span>
+                    <svg :class="{'rotate-180': open}" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="open" class="px-4 py-3 text-gray-700">
+                    With limited professional capacity and widespread unmet needs, technology tools are essential for scaling mental health support accessibly and affordably.
+                </div>
+            </div>
+            <div x-data="{ open: false }" class="border rounded">
+                <button @click="open = !open" class="w-full flex justify-between items-center px-4 py-3 bg-gray-100 hover:bg-gray-200">
+                    <span>How is cultural relevance ensured?</span>
+                    <svg :class="{'rotate-180': open}" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="open" class="px-4 py-3 text-gray-700">
+                    We collaborate with local clinicians, community members, and linguists to co-develop every feature—ensuring the tools respect and reflect local lived experiences.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center text-gray-500 text-sm pt-6">
+        &copy; 2025 Global Mental Health Initiative — Created by a student committed to impact through design and empathy.
+    </footer>
+</div>
+
+<!-- Chart.js Setup -->
+<script>
+    const ctx = document.getElementById('mhChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Low-Resource Countries', 'Regional Average', 'High-Income Countries'],
+            datasets: [{
+                label: 'Mental Health Professionals per 100,000 Population',
+                data: [2, 8, 23],
+                backgroundColor: ['#ef4444', '#3b82f6', '#10b981'],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `${ctx.dataset.label}: ${ctx.raw}`
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Global Inequality in Mental Health Workforce'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Professionals per 100,000 Population'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Country Group'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!-- AOS Animation Init -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init();
+</script>
+</body>
+</html>
