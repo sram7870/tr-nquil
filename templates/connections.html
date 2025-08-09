@@ -1,99 +1,581 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Find Support - Connections</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Find Support — Connections</title>
+
+    <!-- Tailwind + AOS + Feather -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <!-- Tailwind config & fonts matching your provided style -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: { sans: ['"Trebuchet MS"', 'Helvetica', 'sans-serif'] },
                     colors: {
-                        primaryGreen: {
-                            DEFAULT: '#256d3b',
-                            light: '#4a9867',
-                            dark: '#1d502a',
-                        },
+                        primaryGreen: { DEFAULT: '#256d3b', light: '#4a9867', dark: '#1d502a' },
                         offwhite: '#f8faf6',
-                        calmGray: {
-                            light: '#e6e8e3',
-                            DEFAULT: '#9ca3af',
-                            dark: '#6b7280',
-                        }
+                        calmGray: { light: '#e6e8e3', DEFAULT: '#9ca3af', dark: '#6b7280' }
                     },
-                    backgroundImage: {
-                        leafy: "url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')"
-
-                    }
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: 0, transform: 'translateY(10px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } }
+                    },
+                    animation: { fadeIn: 'fadeIn 0.45s ease-out forwards' }
                 }
             }
         }
     </script>
-</head>
-<body class="bg-offwhite text-primaryGreen">
 
+    <style>
+        body { background: #f8faf6; font-family: "Trebuchet MS", Helvetica, sans-serif; }
+        .glass { background: rgba(255,255,255,0.6); backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%); border: 1px solid rgba(156,163,175,0.12); }
+        .card-inner { transition: transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .18s; transform-origin: center; }
+        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+        .snap-scroll { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+        .snap-item { scroll-snap-align: start; }
+        /* Modal animation */
+        .modal-enter { transform: translateY(6px) scale(.995); opacity: 0; }
+        .modal-enter-active { transform: translateY(0) scale(1); opacity: 1; transition: all .22s cubic-bezier(.2,.9,.3,1); }
+        /* subtle scrollbar */
+        ::-webkit-scrollbar { height:8px; width:8px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius:8px; }
+        /* focus style */
+        .focus-ring:focus { outline: 3px solid rgba(37,109,59,0.12); outline-offset: 2px; }
+    </style>
+</head>
+<body class="text-primaryGreen font-sans">
+
+<!-- NAV -->
 <nav class="bg-[#f9f9f6] backdrop-blur-md shadow-sm border-b border-gray-200 py-4 px-8 flex items-center justify-between sticky top-0 z-50">
     <div class="flex items-center space-x-3">
         <i data-feather="home" class="w-5 h-5 text-[#2f5930]"></i>
-        <span class="text-lg font-bold text-[#2f5930] tracking-wide">Dashboard</span>
+        <a href="/dashboard" class="text-lg font-bold text-[#2f5930] tracking-wide">Dashboard</a>
     </div>
     <div class="flex space-x-6 text-sm font-medium">
         <a href="/journal" class="text-gray-600 hover:text-[#2f5930]">Journal</a>
         <a href="/quiz" class="text-gray-600 hover:text-[#2f5930]">Quiz</a>
         <a href="/stats" class="text-gray-600 hover:text-[#2f5930]">Statistics</a>
         <a href="/info" class="text-gray-600 hover:text-[#2f5930]">Info</a>
-        <a href="connections.html">Connections</a>
+        <a href="connections.html" class="text-primaryGreen font-semibold">Connections</a>
     </div>
 </nav>
 
-<main class="max-w-6xl mx-auto p-6">
+<main class="max-w-6xl mx-auto py-10 px-6 animate-fadeIn">
 
-    <header class="mb-12 text-center">
-        <h1 class="text-4xl font-bold mb-2">Connect with Supportive People</h1>
-        <p class="text-lg text-primaryGreen-dark">Reach out to licensed professionals or peers who understand your journey.</p>
-    </header>
+    <!-- TOP: header + quick stats -->
+    <header class="mb-8">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div>
+                <h1 class="text-4xl lg:text-5xl font-black mb-5">Connect with Professionals</h1>
+                <p class="text-primaryGreen-dark text-lg max-w-2xl">Browse licensed professionals and peer supporters — message, schedule, and save the ones that resonate with you.</p>
+            </div>
 
-    <!-- Background Section -->
-    <section class="rounded-lg bg-leafy bg-cover bg-center p-10 mb-12 shadow-lg text-white text-center">
-        <h2 class="text-3xl font-semibold mb-2" >You're Not Alone</h2>
-        <p class="max-w-xl mx-auto text-lg">Talking to someone can make a real difference. Browse below to find a connection that resonates with you.</p>
-    </section>
-
-    <!-- Cards Grid -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-
-        {% for person in people %}
-        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition">
-            <img src="{{ person.avatar }}" alt="{{ person.name }}" class="w-24 h-24 rounded-full object-cover mb-4 border-4 border-primaryGreen">
-            <h3 class="text-xl font-semibold text-primaryGreen mb-1">{{ person.name }}</h3>
-            <p class="text-sm text-calmGray-dark mb-3 italic">{{ person.role }}</p>
-            <p class="text-sm text-calmGray-dark mb-4">{{ person.bio }}</p>
-            <div class="flex space-x-4 mt-auto">
-                {% if person.social.linkedin %}
-                <a href="{{ person.social.linkedin }}" target="_blank" title="LinkedIn">
-                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" class="w-5 h-5" alt="LinkedIn">
-                </a>
-                {% endif %}
-                {% if person.social.twitter %}
-                <a href="{{ person.social.twitter }}" target="_blank" title="Twitter">
-                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" class="w-5 h-5" alt="Twitter">
-                </a>
-                {% endif %}
-                {% if person.social.instagram %}
-                <a href="{{ person.social.instagram }}" target="_blank" title="Instagram">
-                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" class="w-5 h-5" alt="Instagram">
-                </a>
-                {% endif %}
+            <!-- quick stats -->
+            <div class="flex gap-4 items-center">
+                <div class="bg-white rounded-3xl p-4 shadow-md text-center min-w-[110px] glass">
+                    <div class="text-xs text-calmGray-dark">Active Now</div>
+                    <div id="statActive" class="text-lg font-semibold">700</div>
+                </div>
+                <div class="bg-white rounded-3xl p-4 shadow-md text-center min-w-[110px] glass">
+                    <div class="text-xs text-calmGray-dark">Favorites</div>
+                    <div id="statFav" class="text-lg font-semibold">0</div>
+                </div>
+                <div class="bg-white rounded-3xl p-4 shadow-md text-center min-w-[120px] glass">
+                    <div class="text-xs text-calmGray-dark">Messages</div>
+                    <div id="statMsg" class="text-lg font-semibold">—</div>
+                </div>
+                <div class="bg-white rounded-3xl p-4 shadow-md text-center min-w-[120px] glass">
+                    <div class="text-xs text-calmGray-dark">Events</div>
+                    <div id="statEvents" class="text-lg font-semibold">3</div>
+                </div>
             </div>
         </div>
-        {% endfor %}
+    </header>
 
+    <!-- HERO (spacious) -->
+    <section class="rounded-3xl bg-[url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=1400&auto=format&fit=crop')] bg-cover bg-center p-10 mb-8 shadow-2xl text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent rounded-3xl"></div>
+        <div class="relative z-10 max-w-4xl">
+            <h2 class="text-3xl lg:text-4xl font-semibold mb-2">You're Not Alone</h2>
+            <p class="text-lg max-w-2xl">Talking to someone can make a real difference — choose a connection and start a supportive conversation today.</p>
+        </div>
     </section>
 
-    <footer class="mt-16 text-center text-sm text-primaryGreen-dark">
-        This feature is for support and connection. For emergencies, please seek immediate professional help.
-    </footer>
+    <!-- CONTROLS -->
+    <section class="mb-8">
+        <div class="bg-white glass rounded-3xl p-5 shadow-md flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div class="flex-1 flex gap-3 items-center">
+                <input id="searchInput" class="w-full px-4 py-3 rounded-full border border-gray-200 focus:ring-2 focus:ring-primaryGreen-light focus:outline-none focus-ring" placeholder="Search by name, role, or specialty..." />
+                <select id="roleFilter" class="px-4 py-3 rounded-full border border-gray-200">
+                    <option value="">All roles</option>
+                    <option>Licensed Therapist</option>
+                    <option>Peer Support</option>
+                    <option>Wellness Coach</option>
+                    <option>Clinical Psychologist</option>
+                </select>
+                <select id="sortSelect" class="px-4 py-3 rounded-full border border-gray-200">
+                    <option value="recommended">Recommended</option>
+                    <option value="active">Most Active</option>
+                    <option value="experience">Most Experienced</option>
+                    <option value="alpha">A → Z</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div id="chipRow" class="flex gap-2 flex-wrap">
+                    <button class="chip-btn px-3 py-2 text-xs rounded-full border border-gray-200">Anxiety</button>
+                    <button class="chip-btn px-3 py-2 text-xs rounded-full border border-gray-200">Mindfulness</button>
+                    <button class="chip-btn px-3 py-2 text-xs rounded-full border border-gray-200">CBT</button>
+                    <button class="chip-btn px-3 py-2 text-xs rounded-full border border-gray-200">Grief</button>
+                    <button class="chip-btn px-3 py-2 text-xs rounded-full border border-gray-200">PTSD</button>
+                </div>
+                <button id="resetBtn" class="px-4 py-2 rounded-full border border-gray-200 hover:bg-primaryGreen/10">Reset</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- GRID: left large area with cards, right-sidebar with activity & recommendations -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- CARDS: spans two columns on large -->
+        <section class="lg:col-span-2 space-y-6">
+
+            <!-- cards grid -->
+            <div id="cardsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- cards are injected from JS (keeps backend same) -->
+                {% for person in people %}
+                <div class="hidden server-person" data-person='{{ person|tojson|safe }}'></div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- RIGHT SIDEBAR -->
+        <aside class="space-y-6">
+            <!-- recent activity -->
+            <div class="bg-white glass rounded-3xl p-4 shadow-md">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-semibold">Recent activity</h4>
+                    <small class="text-xs text-calmGray-dark">Today</small>
+                </div>
+                <ul id="activityFeed" class="space-y-3 text-sm text-calmGray-dark">
+                    <!-- injected -->
+                </ul>
+                <div class="mt-3 text-xs text-calmGray-dark">No personally-identifying info shown — demo data only.</div>
+            </div>
+
+            <!-- recommendations -->
+            <div class="bg-white glass rounded-3xl p-4 shadow-md">
+                <h4 class="font-semibold mb-3">Recommended connections</h4>
+                <div id="recommendations" class="space-y-3"></div>
+            </div>
+
+            <!-- small events -->
+            <div class="bg-white glass rounded-3xl p-4 shadow-md">
+                <h4 class="font-semibold mb-2">Upcoming events</h4>
+                <ul class="text-sm text-calmGray-dark space-y-2">
+                    <li><strong>Aug 14</strong> · Group Meditation — Fatima</li>
+                    <li><strong>Aug 17</strong> · PTSD Coping — Carlos</li>
+                    <li><strong>Aug 20</strong> · Grief Circle — Jayden</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <footer class="mt-10 text-sm text-calmGray-dark text-center">This feature is for support and connection. For emergencies, please seek immediate professional help.</footer>
 </main>
 
+<!-- PROFILE MODAL (dashboard-style, roomy) -->
+<div id="profileModal" class="fixed inset-0 z-50 hidden">
+
+    <div class="absolute inset-0 bg-black/50" onclick="closeModal()"></div>
+    <div class="relative max-w-4xl mx-auto mt-12 modal-enter modal-enter-active">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden" style="max-height: 80vh; overflow-y: auto">
+            <!-- banner -->
+            <div class="h-20 bg-gradient-to-r from-primaryGreen to-primaryGreen-dark"></div>
+
+            <div class="p-8 md:p-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- left: avatar & quick actions -->
+                <div class="col-span-1 flex flex-col items-center md:items-start gap-4">
+                    <img id="modalAvatar" class="w-36 h-36 rounded-full border-4 border-white shadow-lg -mt-20 bg-white" src="" alt="avatar" />
+                    <div class="text-center md:text-left">
+                        <h2 id="modalName" class="text-2xl font-bold"></h2>
+                        <div id="modalRole" class="text-sm text-calmGray-dark italic"></div>
+                    </div>
+
+                    <div class="w-full">
+                        <div class="mt-3 flex gap-2">
+                            <button id="bookmarkBtn" class="flex-1 px-4 py-2 rounded-lg border border-gray-200">♡ Save</button>
+                            <button id="msgBtn" class="flex-1 px-4 py-2 rounded-lg bg-primaryGreen text-white">Message</button>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="text-xs text-calmGray-dark">Status</div>
+                            <div id="modalStatus" class="mt-1 text-sm font-medium text-primaryGreen-dark"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- middle: about, specialties, testimonials -->
+                <div class="col-span-2 space-y-4">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div id="modalBio" class="text-sm text-calmGray-dark"></div>
+                            <div class="mt-3 text-xs text-calmGray-dark">Experience · <span id="modalYears"></span> years · <span id="modalCity"></span></div>
+                        </div>
+                        <div>
+                            <button class="text-gray-600" onclick="closeModal()">✕</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <div class="font-semibold mb-2">Specialties & Languages</div>
+                        <div id="modalBadges" class="flex gap-2 flex-wrap"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white rounded-xl p-4 border border-gray-100">
+                            <div class="font-semibold mb-2">Availability (demo)</div>
+                            <div id="availableSlots" class="space-y-2 text-sm"></div>
+                            <div class="mt-3">
+                                <button id="bookBtn" class="px-4 py-2 rounded-lg bg-primaryGreen text-white w-full">Request Session</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-4 border border-gray-100">
+                            <div class="font-semibold mb-2">Testimonials</div>
+                            <div id="modalTestimonials" class="text-sm text-calmGray-dark space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="font-semibold mb-2">Send a friendly note</div>
+                        <textarea id="quickNote" rows="3" class="w-full p-3 rounded-lg border border-gray-200" placeholder="Hello — I'd like to connect..."></textarea>
+                        <div class="mt-3 flex gap-2 items-center">
+                            <button id="sendNoteBtn" class="px-4 py-2 rounded-lg bg-primaryGreen text-white">Send message</button>
+                            <button id="saveDraftBtn" class="px-4 py-2 rounded-lg border border-gray-200">Save draft</button>
+                            <div id="noteStatus" class="text-sm text-calmGray-dark ml-auto"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="font-semibold mb-2">Similar connections</div>
+                        <div id="similarConnections" class="flex gap-3 overflow-x-auto pb-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- small toast -->
+<div id="toast" class="fixed bottom-6 right-6 hidden bg-black/80 text-white px-4 py-2 rounded-lg"></div>
+
+<!-- server people -> JS -->
+<script> window.PEOPLE = {{ people|tojson|safe }}; </script>
+
+<script>
+    feather.replace(); AOS.init({ duration: 700, once: true });
+
+    // Utilities
+    const rand = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+    const FAVORITES_KEY = 'connections_favorites_v2';
+    let favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+
+    function toast(msg, t=2000) {
+        const el = document.getElementById('toast');
+        el.innerText = msg; el.classList.remove('hidden');
+        setTimeout(()=> el.classList.add('hidden'), t);
+    }
+
+    // Augment PEOPLE with demo metadata
+    const specialtiesPool = ['Anxiety','Mindfulness','CBT','Grief','PTSD','Depression','Sleep','Relationships'];
+    const cities = ['Mumbai','Bengaluru','Delhi','Chennai','Kolkata'];
+    window.PEOPLE = window.PEOPLE.map((p,i)=>{
+        p.id = i;
+        p.status = ['Online','Away','Offline'][rand(0,2)];
+        p.lastActive = `${rand(2,55)}m ago`;
+        p.specialties = Array.from(new Set([specialtiesPool[rand(0,specialtiesPool.length-1)], specialtiesPool[rand(0,specialtiesPool.length-1)]]));
+        p.languages = ['English','Hindi','Arabic'][rand(0,2)];
+        p.city = cities[rand(0,cities.length-1)];
+        p.years = rand(2,18);
+        p.testimonials = [
+            "Truly life-changing advice and constant support.",
+            "Always there to listen and guide without judgment.",
+            "Helped me find practical tools I still use daily."
+        ].slice(0, rand(1,3));
+        p.availableSlots = ['Tomorrow, 10:00 AM','Tomorrow, 5:00 PM','Aug 18, 1:00 PM'];
+        return p;
+    });
+
+    // DOM refs
+    const cardsGrid = document.getElementById('cardsGrid');
+    const featuredCarousel = document.getElementById('featuredCarousel');
+    const activityFeed = document.getElementById('activityFeed');
+    const recommendations = document.getElementById('recommendations');
+    const statActive = document.getElementById('statActive');
+    const statFav = document.getElementById('statFav');
+    const statMsg = document.getElementById('statMsg');
+
+    // Recent activity (demo)
+    const activities = [
+        "Lena accepted a message request.",
+        "Carlos posted in the PTSD support room.",
+        "Jayden shared a helpful resource in Grief Circle.",
+        "Fatima started a new guided-meditation event."
+    ];
+    activities.forEach(a => {
+        const li = document.createElement('li');
+        li.className = 'text-sm';
+        li.innerText = a;
+        activityFeed.appendChild(li);
+    });
+
+    // recommendations
+    window.PEOPLE.slice().sort(()=>Math.random()-0.5).slice(0,3).forEach(p=>{
+        const d = document.createElement('div');
+        d.className = 'flex items-center gap-3';
+        d.innerHTML = `<img src="${p.avatar}" class="w-12 h-12 rounded-full"><div><div class="font-semibold text-sm">${p.name}</div><div class="text-xs text-calmGray-dark">${p.role}</div></div>`;
+        recommendations.appendChild(d);
+    });
+
+    // Stats
+    statActive.innerText = rand(100,700)
+    // statActive.innerText = window.PEOPLE.filter(p=>p.status==='Online').length; -- Actual working code
+    statFav.innerText = favorites.length;
+    statMsg.innerText = rand(1,12);
+
+    // Render cards (roomy cards)
+    function renderCards(list) {
+        cardsGrid.innerHTML = '';
+        list.forEach(p => {
+            const card = document.createElement('article');
+            card.className = 'bg-white rounded-3xl p-6 shadow-md glass card-inner';
+            card.innerHTML = `
+        <div class="flex gap-4">
+          <img src="${p.avatar}" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-sm" alt="${p.name}" />
+          <div class="flex-1">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-lg">${p.name}</div>
+                <div class="text-xs text-calmGray-dark italic">${p.role}</div>
+              </div>
+              <div class="text-right">
+                <div><span class="inline-block w-3 h-3 rounded-full" style="background:${p.status==='Online'?'#34D399':p.status==='Away'?'#F59E0B':'#9CA3AF'}"></span> <span class="text-xs text-calmGray-dark">${p.status==='Online'?'Available':p.lastActive}</span></div>
+                <div class="mt-3 flex gap-2 justify-end">
+                  <button class="fav-btn px-3 py-1 rounded-full border border-gray-200 text-sm">${favorites.includes(p.id)? 'Saved':'Save'}</button>
+                  <button class="open-btn px-3 py-1 rounded-full bg-primaryGreen text-white text-sm">Details</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="mt-3 text-sm text-calmGray-dark line-clamp-4">${p.bio}</p>
+
+            <div class="mt-4 flex gap-2 items-center">
+              <span class="text-xs px-2 py-1 bg-primaryGreen/10 rounded-full">${p.specialties[0]}</span>
+              <span class="text-xs px-2 py-1 bg-primaryGreen/10 rounded-full">${p.specialties[1]}</span>
+              <span class="text-xs px-2 py-1 bg-primaryGreen/10 rounded-full">${p.years} yrs</span>
+            </div>
+          </div>
+        </div>
+      `;
+            // events
+            card.querySelector('.open-btn').addEventListener('click', ()=> openModal(p.id));
+            card.querySelector('.fav-btn').addEventListener('click', (e)=>{
+                e.stopPropagation();
+                toggleFavorite(p.id);
+                card.querySelector('.fav-btn').innerText = favorites.includes(p.id) ? 'Saved' : 'Save';
+            });
+
+            // tilt effect (gentle)
+            card.addEventListener('mousemove', (ev) => {
+                const rect = card.getBoundingClientRect();
+                const cx = rect.left + rect.width/2;
+                const cy = rect.top + rect.height/2;
+                const dx = (ev.clientX - cx) / rect.width;
+                const dy = (ev.clientY - cy) / rect.height;
+                card.style.transform = `perspective(800px) rotateX(${ -dy * 4 }deg) rotateY(${ dx * 4 }deg)`;
+            });
+            card.addEventListener('mouseleave', ()=> card.style.transform = '');
+
+            cardsGrid.appendChild(card);
+        });
+        feather.replace();
+    }
+
+    // initial cards
+    renderCards(window.PEOPLE);
+
+    // Search & filters
+    const searchInput = document.getElementById('searchInput');
+    const roleFilter = document.getElementById('roleFilter');
+    const sortSelect = document.getElementById('sortSelect');
+    const chipBtns = Array.from(document.querySelectorAll('.chip-btn'));
+    const resetBtn = document.getElementById('resetBtn');
+
+    function applyFilters() {
+        const q = searchInput.value.toLowerCase().trim();
+        const role = roleFilter.value;
+        const activeChips = chipBtns.filter(b=>b.classList.contains('active')).map(b=>b.innerText);
+        let filtered = window.PEOPLE.filter(p=>{
+            const text = `${p.name} ${p.role} ${p.bio} ${p.specialties.join(' ')}`.toLowerCase();
+            if (q && !text.includes(q)) return false;
+            if (role && !p.role.includes(role)) return false;
+            if (activeChips.length && !activeChips.some(c=>p.specialties.includes(c))) return false;
+            return true;
+        });
+        // sorting
+        if (sortSelect.value === 'alpha') filtered.sort((a,b)=> a.name.localeCompare(b.name));
+        else if (sortSelect.value === 'experience') filtered.sort((a,b)=> b.years - a.years);
+        else if (sortSelect.value === 'active') filtered.sort((a,b)=> (a.status==='Online'?1:0) - (b.status==='Online'?1:0)).reverse();
+        // render
+        renderCards(filtered);
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+    roleFilter.addEventListener('change', applyFilters);
+    sortSelect.addEventListener('change', applyFilters);
+    chipBtns.forEach(btn=>{
+        btn.addEventListener('click', ()=> {
+            btn.classList.toggle('active');
+            btn.classList.toggle('bg-primaryGreen/10');
+            btn.classList.toggle('border-primaryGreen');
+            applyFilters();
+        });
+    });
+    resetBtn.addEventListener('click', ()=> {
+        searchInput.value = ''; roleFilter.value = ''; sortSelect.value = 'recommended';
+        chipBtns.forEach(b=>{ b.classList.remove('active','bg-primaryGreen/10','border-primaryGreen'); });
+        applyFilters();
+    });
+
+    // favorites persistence
+    function toggleFavorite(id) {
+        if (favorites.includes(id)) {
+            favorites = favorites.filter(x=>x!==id);
+            toast('Removed from favorites');
+        } else {
+            favorites.push(id);
+            toast('Added to favorites');
+        }
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+        statFav.innerText = favorites.length;
+    }
+
+    // PROFILE MODAL functions
+    const modal = document.getElementById('profileModal');
+    const modalAvatar = document.getElementById('modalAvatar');
+    const modalName = document.getElementById('modalName');
+    const modalRole = document.getElementById('modalRole');
+    const modalBio = document.getElementById('modalBio');
+    const modalBadges = document.getElementById('modalBadges');
+    const modalTestimonials = document.getElementById('modalTestimonials');
+    const modalStatus = document.getElementById('modalStatus');
+    const modalYears = document.getElementById('modalYears');
+    const modalCity = document.getElementById('modalCity');
+    const availableSlots = document.getElementById('availableSlots');
+    const similarConnections = document.getElementById('similarConnections');
+    const quickNote = document.getElementById('quickNote');
+    const noteStatus = document.getElementById('noteStatus');
+    const bookmarkBtn = document.getElementById('bookmarkBtn');
+
+    let currentId = null;
+    function openModal(id) {
+        const p = window.PEOPLE.find(x=>x.id===id);
+        currentId = id;
+        modalAvatar.src = p.avatar;
+        modalName.innerText = p.name;
+        modalRole.innerText = p.role;
+        modalBio.innerText = p.bio;
+        modalYears.innerText = p.years;
+        modalCity.innerText = p.city;
+        modalStatus.innerText = p.status === 'Online' ? 'Available now' : `Last active ${p.lastActive}`;
+        // badges
+        modalBadges.innerHTML = '';
+        p.specialties.forEach(s=>{
+            const b = document.createElement('span');
+            b.className = 'text-xs px-3 py-1 bg-primaryGreen/10 rounded-full';
+            b.innerText = s;
+            modalBadges.appendChild(b);
+        });
+        // testimonials
+        modalTestimonials.innerHTML = '';
+        p.testimonials.forEach(t=>{
+            const li = document.createElement('div');
+            li.className = 'text-sm text-calmGray-dark';
+            li.innerText = `“${t}”`;
+            modalTestimonials.appendChild(li);
+        });
+        // slots
+        availableSlots.innerHTML = '';
+        p.availableSlots.forEach(s=>{
+            const b = document.createElement('div');
+            b.className = 'text-sm p-2 rounded border border-gray-100';
+            b.innerText = s;
+            b.addEventListener('click', ()=> {
+                Array.from(availableSlots.children).forEach(c=>c.classList.remove('bg-primaryGreen','text-white'));
+                b.classList.add('bg-primaryGreen','text-white');
+            });
+            availableSlots.appendChild(b);
+        });
+        // similar
+        similarConnections.innerHTML = '';
+        window.PEOPLE.filter(x=>x.id!==p.id).sort(()=>Math.random()-0.5).slice(0,4).forEach(s=>{
+            const el = document.createElement('div');
+            el.className = 'flex-shrink-0 w-44 p-2 bg-white rounded-lg border border-gray-100 flex gap-2 items-center';
+            el.innerHTML = `<img src="${s.avatar}" class="w-10 h-10 rounded-full"><div><div class="font-semibold text-sm">${s.name}</div><div class="text-xs text-calmGray-dark">${s.role}</div></div>`;
+            el.addEventListener('click', ()=> openModal(s.id));
+            similarConnections.appendChild(el);
+        });
+
+        // bookmark button text
+        bookmarkBtn.innerText = favorites.includes(id) ? 'Saved' : '♡ Save';
+        bookmarkBtn.onclick = () => { toggleFavorite(id); bookmarkBtn.innerText = favorites.includes(id) ? 'Saved' : '♡ Save'; };
+
+        // quick note draft load
+        const drafts = JSON.parse(localStorage.getItem('note_drafts_v1') || '{}');
+        quickNote.value = drafts[id] || '';
+        // send/save
+        document.getElementById('sendNoteBtn').onclick = () => {
+            const txt = quickNote.value.trim();
+            if (!txt) { noteStatus.innerText = 'Type your message'; return; }
+            noteStatus.innerText = 'Sending...';
+            setTimeout(()=> {
+                noteStatus.innerText = 'Sent (demo)';
+                toast('Message sent (demo)');
+                quickNote.value = '';
+                setTimeout(()=> noteStatus.innerText = '', 1500);
+            }, 800);
+        };
+        document.getElementById('saveDraftBtn').onclick = () => {
+            const drafts = JSON.parse(localStorage.getItem('note_drafts_v1') || '{}');
+            drafts[id] = quickNote.value;
+            localStorage.setItem('note_drafts_v1', JSON.stringify(drafts));
+            noteStatus.innerText = 'Fav';
+            setTimeout(()=> noteStatus.innerText = '', 1200);
+        };
+
+        // show modal
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // close clicking Esc
+    document.addEventListener('keydown', (e)=> { if (e.key === 'Escape') closeModal(); });
+
+    // small auto-scroll for featured
+
+    // run initial AOS
+    AOS.refresh();
+</script>
 </body>
 </html>
