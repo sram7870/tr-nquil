@@ -17,7 +17,7 @@ JOURNAL_DB_FILE = 'journal_db.json'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx'}
 UPLOAD_FOLDER = 'uploads'
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_API_KEY = os.getenv("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")
 if not OPENROUTER_API_KEY:
     raise RuntimeError("Missing OPENROUTER_API_KEY environment variable")
 
